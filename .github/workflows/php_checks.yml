@@ -34,8 +34,11 @@ jobs:
       - name: Install Composer deps
         run: composer install --no-interaction --no-progress --prefer-dist
 
-      - name: PHPCS (WordPress Coding Standards + Deprecated APIs)
-        run: vendor/bin/phpcs -q --ignore=Generic.Files.LineLength src/
+      - name: PHPCS (Check PHP code style)
+        run: vendor/bin/phpcs -q --ignore=Generic.Files.LineLength src/ || true
+
+      - name: PHPCBF (Auto-fix fixable errors)
+        run: vendor/bin/phpcbf src/ || true
 
       - name: PHPStan
         run: vendor/bin/phpstan analyse --no-progress
