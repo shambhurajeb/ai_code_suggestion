@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Bad HTML Example : Image buttons & Links</title>
+  </head>
+  <body>
+    <h2>Image Link With <code>img</code> element.</h2>
+    <a href="/product/">
+      <img
+        src="https://wac-cdn.atlassian.com/dam/jcr:c942540c-53ae-4357-bffa-ed37739d71b0/bitbucket-atlassian-logo.svg?cdnVersion=1635"
+        height="35px"
+        alt=""
+      />
+    </a>
+    <h2>Image Button with <code>span</code> and <code>i</code> elements</h2>
+    <button>
+      <span role="img" aria-label="" class="css-3y1gq6"
+        ><svg width="24" height="24" viewBox="0 0 24 24" role="presentation">
+          <path
+            d="M16.436 15.085l3.94 4.01a1 1 0 01-1.425 1.402l-3.938-4.006a7.5 7.5 0 111.423-1.406zM10.5 16a5.5 5.5 0 100-11 5.5 5.5 0 000 11z"
+            fill="currentColor"
+            fill-rule="evenodd"
+          ></path></svg
+      ></span>
+    </button>
+    <h2>Image button with <code>role</code> button</h2>
+
+    <div role="button" tabindex="0">
+      <span role="img" aria-label="Create" class="css-3y1gq6"
+        ><svg width="24" height="24" viewBox="0 0 24 24" role="presentation">
+          <path
+            d="M13 11V3.993A.997.997 0 0012 3c-.556 0-1 .445-1 .993V11H3.993A.997.997 0 003 12c0 .557.445 1 .993 1H11v7.007c0 .548.448.993 1 .993.556 0 1-.445 1-.993V13h7.007A.997.997 0 0021 12c0-.556-.445-1-.993-1H13z"
+            fill="currentColor"
+            fill-rule="evenodd"
+          ></path></svg
+      ></span>
+    </div>
+  </body>
+</html>
