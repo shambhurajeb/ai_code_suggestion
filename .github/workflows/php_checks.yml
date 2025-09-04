@@ -1,52 +1,52 @@
-# name: PR Quality Gates
+name: PR Quality Gates
 
-# on:
-#   pull_request:
-#     types: [opened, synchronize, reopened, ready_for_review]
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
 
-# concurrency:
-#   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
-#   cancel-in-progress: true
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
-# jobs:
-#   php-checks:
-#     runs-on: ubuntu-latest
-#     permissions:
-#       contents: read
-#     steps:
-#       - uses: actions/checkout@v4
+jobs:
+  php-checks:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
 
-#       - name: Setup PHP
-#         uses: shivammathur/setup-php@v2
-#         with:
-#           php-version: '8.2'
-#           tools: composer
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
 
-#       - name: Cache Composer
-#         uses: actions/cache@v4
-#         with:
-#           path: |
-#             ~/.composer/cache
-#             vendor
-#           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-#           restore-keys: ${{ runner.os }}-composer-
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.composer/cache
+            vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
 
-#       - name: Install Composer deps
-#         run: composer install --no-interaction --no-progress --prefer-dist
+      - name: Install Composer deps
+        run: composer install --no-interaction --no-progress --prefer-dist
 
-#       - name: PHPCS (Check PHP code style)
-#         run: vendor/bin/phpcs -q --ignore=Generic.Files.LineLength src/
+      - name: PHPCS (Check PHP code style)
+        run: vendor/bin/phpcs -q --ignore=Generic.Files.LineLength src/
 
-#       - name: PHPCBF (Auto-fix fixable errors)
-#         run: vendor/bin/phpcbf src/ || true
+      - name: PHPCBF (Auto-fix fixable errors)
+        run: vendor/bin/phpcbf src/ || true
 
-#       - name: PHPStan
-#         run: vendor/bin/phpstan analyse src/ --no-progress
+      - name: PHPStan
+        run: vendor/bin/phpstan analyse src/ --no-progress
 
-#       - name: Rector dry-run
-#         run: vendor/bin/rector process --dry-run
+      - name: Rector dry-run
+        run: vendor/bin/rector process --dry-run
         
-#       - name: Composer audit
-#         run: |
-#           composer config --global audit.abandoned fail
-#           composer audit --format=plain
+      - name: Composer audit
+        run: |
+          composer config --global audit.abandoned fail
+          composer audit --format=plain
