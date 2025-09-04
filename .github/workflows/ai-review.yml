@@ -1,48 +1,48 @@
-name: Ai Review
+# name: Ai Review
 
-on:
-  pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
+# on:
+#   pull_request:
+#     types: [opened, synchronize, reopened, ready_for_review]
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
+# concurrency:
+#   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+#   cancel-in-progress: true
 
-jobs:
-  ai-review:
-    if: ${{ !github.event.pull_request.draft }}
-    runs-on: ubuntu-latest
-    permissions:
-      issues: write
-      pull-requests: write
-      contents: write
+# jobs:
+#   ai-review:
+#     if: ${{ !github.event.pull_request.draft }}
+#     runs-on: ubuntu-latest
+#     permissions:
+#       issues: write
+#       pull-requests: write
+#       contents: write
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
+#       - name: Set up Python
+#         uses: actions/setup-python@v4
+#         with:
+#           python-version: '3.10'
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install openai PyGithub
+#       - name: Install dependencies
+#         run: |
+#           python -m pip install --upgrade pip
+#           pip install openai PyGithub
 
-      - name: Run AI PR Review
-        id: ai-review
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          GITHUB_EVENT_PATH: ${{ github.event_path }}
-        run: |
-          python .github/scripts/code_review.py > review_summary.md
+#       - name: Run AI PR Review
+#         id: ai-review
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+#           GITHUB_REPOSITORY: ${{ github.repository }}
+#           GITHUB_EVENT_PATH: ${{ github.event_path }}
+#         run: |
+#           python .github/scripts/code_review.py > review_summary.md
 
-      # Show AI review in the Checks section summary
-      - name: Show AI review in PR checks
-        run: |
-          echo "## 🤖 AI PR Review Summary" >> $GITHUB_STEP_SUMMARY
-          cat review_summary.md >> $GITHUB_STEP_SUMMARY
+#       # Show AI review in the Checks section summary
+#       - name: Show AI review in PR checks
+#         run: |
+#           echo "## 🤖 AI PR Review Summary" >> $GITHUB_STEP_SUMMARY
+#           cat review_summary.md >> $GITHUB_STEP_SUMMARY
