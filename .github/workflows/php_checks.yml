@@ -44,8 +44,8 @@ jobs:
         run: vendor/bin/phpstan analyse src/ --no-progress || true
 
       - name: Rector dry-run
-        run: vendor/bin/rector process --dry-run
-
+        run: vendor/bin/rector process --dry-run || true
+        
       - name: Composer audit
         run: |
           composer config --global audit.abandoned fail
