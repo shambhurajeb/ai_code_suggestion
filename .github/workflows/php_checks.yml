@@ -12,6 +12,7 @@ jobs:
   php-checks:
     runs-on: ubuntu-latest
     permissions:
+      pull-requests: write
       contents: read
     steps:
       - uses: actions/checkout@v4
