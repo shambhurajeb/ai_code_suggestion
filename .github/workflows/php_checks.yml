@@ -56,21 +56,8 @@ jobs:
           composer config --global audit.abandoned fail
           composer audit --format=plain || true
 
-  ai-pr-review:
-    runs-on: ubuntu-latest
-    needs: php-checks
-    permissions:
-      pull-requests: write
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install openai PyGithub
+      - name: Run AI PR Review
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: python .github/scripts/php-code-suggestor.py
