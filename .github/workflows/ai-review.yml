@@ -3,6 +3,8 @@ name: AI PR Review
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
+  issue_comment:
+    types: [created, edited]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
@@ -10,19 +12,23 @@ concurrency:
 
 jobs:
   ai-review:
-    if: ${{ !github.event.pull_request.draft }}
+    if: ${{ github.event.sender.type != 'Bot' && !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
     permissions:
       issues: write
       pull-requests: write
       contents: write
+
     steps:
-      - uses: actions/checkout@v4
-      - name: AI PR Review
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run PR Agent
         uses: qodo-ai/pr-agent@main
         env:
           OPENAI_KEY: ${{ secrets.OPENAI_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          summarize: true
-          review_comment_lgtm: true
+          github_action_config.auto_review: "true"
+          github_action_config.auto_describe: "true"
+          github_action_config.auto_improve: "true"
+          github_action_config.pr_actions: '["opened", "reopened", "ready_for_review", "synchronize"]'
