@@ -32,47 +32,55 @@ files = pr.get_files()
 comments = []
 quota_exceeded = False
 
+# Function to split large patch into chunks
+def split_into_chunks(text, chunk_size=2000):
+    return [text[i:i + chunk_size] for i in range(0, len(text), chunk_size)]
+
 # Analyze each file change
 for file in files:
     print(f"Processing file: {file.filename}")
-    patch = file.patch if file.patch and len(file.patch) <= 3000 else (file.patch[:3000] + "\n... [truncated]" if file.patch else "")
-    print(f"Patch for {file.filename}:\n{patch}")
-
+    patch = file.patch or ""
+    
     if not patch:
         continue
 
-    prompt = f"""
-    You are a code reviewer. Suggest improvements for the following code:
+    # Split patch if too large
+    patch_chunks = split_into_chunks(patch, chunk_size=3000)
 
-    Filename: {file.filename}
-    Patch:
-    {patch}
-    """
+    suggestions = []
+    for idx, chunk in enumerate(patch_chunks):
+        prompt = f"""
+        You are a code reviewer. Suggest improvements for the following code:
 
-    try:
-        # Updated API call for openai>=1.0.0
-        response = openai.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "You are a senior code reviewer."},
-                {"role": "user", "content": prompt},
-            ],
-            max_tokens=400,
-        )
-        suggestion = response.choices[0].message.content
-        print(f"Suggestion for {file.filename}:\n{suggestion}")
+        Filename: {file.filename}
+        Patch (chunk {idx+1}/{len(patch_chunks)}):
+        {chunk}
+        """
 
-        # Append formatted markdown string, not tuple
-        comments.append(f"### 💡 Suggestions for `{file.filename}`\n{suggestion}")
+        try:
+            response = openai.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": "You are a senior code reviewer."},
+                    {"role": "user", "content": prompt},
+                ],
+                max_tokens=1200,  # increased to allow full feedback
+            )
+            suggestion = response.choices[0].message.content.strip()
+            suggestions.append(suggestion)
+        except openai.APIError as e:
+            if "insufficient_quota" in str(e):
+                print(f"⚠️ OpenAI quota exceeded while analyzing `{file.filename}`")
+                quota_exceeded = True
+                break
+            else:
+                print(f"⚠️ OpenAI API error analyzing `{file.filename}`: {e}")
+        except Exception as e:
+            print(f"⚠️ Unexpected error analyzing `{file.filename}`: {e}")
 
-    except openai.APIError as e:
-        if "insufficient_quota" in str(e):
-            print(f"⚠️ OpenAI quota exceeded while analyzing `{file.filename}`")
-            quota_exceeded = True
-        else:
-            print(f"⚠️ OpenAI API error analyzing `{file.filename}`: {e}")
-    except Exception as e:
-        print(f"⚠️ Unexpected error analyzing `{file.filename}`: {e}")
+    # Append combined suggestions for the file
+    if suggestions:
+        comments.append(f"### 💡 Suggestions for `{file.filename}`\n" + "\n\n".join(suggestions))
 
 # Show results in GitHub Checks output
 if comments:
